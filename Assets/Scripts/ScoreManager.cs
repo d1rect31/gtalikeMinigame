@@ -10,6 +10,8 @@ public class ScoreManager : MonoBehaviour
     private float lastY = 0f;
     private int lastScoreY = 0;
     public int scoreMultiplier = 1;
+    public int coins = 0;
+    public TMP_Text coinsText;
     void Start()
     {
         if (player != null)
@@ -30,5 +32,7 @@ public class ScoreManager : MonoBehaviour
         }
         if (scoreText != null)
             scoreText.text = Convert.ToString(score);
+        if (coinsText != null)
+            coinsText.text = Convert.ToString(coins);
     }
 }
