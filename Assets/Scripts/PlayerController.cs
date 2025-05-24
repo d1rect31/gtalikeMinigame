@@ -1,12 +1,12 @@
 using TMPro;
 using UnityEngine;
 
-public class MovementController : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     public float speed = 5f;
     public float laneDistance = 2f;
     public float laneChangeSpeed = 10f;
-    private int currentLane = 1;
+    public int currentLane = 1;
     private Vector3 targetPosition;
 
     // Update is called once per frame
