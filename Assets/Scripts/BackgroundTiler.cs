@@ -39,7 +39,7 @@ public class BackgroundTiler : MonoBehaviour
     void SpawnTile(float yPos)
     {
         Vector3 pos = new Vector3(0, yPos, 0);
-        GameObject tile = Instantiate(tilePrefab, pos, Quaternion.identity, transform);
+        GameObject tile = Instantiate(tilePrefab, pos, Quaternion.identity);
         tiles.AddLast(tile);
     }
 }

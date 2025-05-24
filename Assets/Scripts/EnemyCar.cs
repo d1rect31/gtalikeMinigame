@@ -2,61 +2,107 @@ using UnityEngine;
 
 public class EnemyCar : MonoBehaviour
 {
-    public float maxSpeed = 15f;
-    public float minSpeed = 5f;
-    public float acceleration = 20f;
-    public float stopDistance = 5f;
-    public float catchUpDistance = 15f;
-    public float[] lanePositions = { -2f, 0f, 2f };
-    public float laneChangeSpeed = 10f;
-
-    private float currentSpeed;
+    public float moveSpeed = 10f;
+    public float stopDistance = .1f;
+    private VehicleSlot targetSlot;
+    private Vector3 velocity = Vector3.zero;
+    public float smoothTime = 0.2f;
     private Transform player;
-
+    private static VehicleSlot[] cachedSlots;
     void Start()
     {
-        currentSpeed = minSpeed;
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null)
-        {
-            player = playerObj.transform;
-        }
-    }
-
-    private int GetPlayerLane()
-    {
-        var playerScript = player.GetComponent<PlayerController>();
-        if (playerScript != null)
-            return playerScript.currentLane;
-        return 1;
+        cachedSlots ??= FindObjectsOfType<VehicleSlot>();
+        player = GameObject.FindGameObjectWithTag("Player").transform;
+        TryAssignSlot();
     }
 
     void Update()
     {
-        if (player == null) return;
+        if (targetSlot == null) return;
 
-        float distance = player.position.y - transform.position.y;
-        if (distance > catchUpDistance)
+        // Проверка: если игрок близко к слоту, ищем другой слот
+        if (player != null && Vector3.Distance(player.position, targetSlot.transform.position) < 1.0f)
         {
-            currentSpeed = Mathf.MoveTowards(currentSpeed, maxSpeed, acceleration * Time.deltaTime);
+            targetSlot.Release();
+            TryAssignSlot();
+            return;
         }
-        else if (distance > stopDistance)
+
+        Vector3 targetPos = targetSlot.transform.position;
+        targetPos.z = transform.position.z;
+
+        float distance = Vector3.Distance(transform.position, targetPos);
+        if (distance > stopDistance)
         {
-            float t = Mathf.InverseLerp(stopDistance, catchUpDistance, distance);
-            float targetSpeed = Mathf.Lerp(minSpeed, maxSpeed, t);
-            currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, acceleration * Time.deltaTime);
+            transform.position = Vector3.SmoothDamp(
+                transform.position,
+                targetPos,
+                ref velocity,
+                smoothTime,
+                moveSpeed
+            );
+        }
+    }
+
+    // Попытка занять ближайший свободный слот
+    
+    private void TryAssignSlot()
+    {
+        targetSlot = FindNearestFreeSlot(cachedSlots);
+
+        if (targetSlot != null)
+        {
+            if (targetSlot.IsOccupied)
+            {
+                // Сигнал машине-обитателю освободить слот
+                Debug.Log($"[EnemyCar] Слот {targetSlot.name} занят машиной {targetSlot.Occupant.name}. Запрос на перемещение к следующему слоту.");
+                targetSlot.Occupant.RequestMoveToNextSlot();
+            }
+            else
+            {
+                targetSlot.Occupy(this);
+            }
         }
         else
         {
-            currentSpeed = Mathf.MoveTowards(currentSpeed, 0f, acceleration * Time.deltaTime);
+            Debug.LogWarning("Нет свободных слотов для EnemyCar!");
         }
+    }
 
-        transform.position += Vector3.up * currentSpeed * Time.deltaTime;
+    // По сигналу от другой машины ищем следующий свободный слот
+    public void RequestMoveToNextSlot()
+    {
+        if (targetSlot != null)
+            targetSlot.Release();
 
-        int playerLane = GetPlayerLane();
-        float targetX = lanePositions[playerLane];
-        Vector3 newPos = transform.position;
-        newPos.x = Mathf.Lerp(transform.position.x, targetX, laneChangeSpeed * Time.deltaTime);
-        transform.position = newPos;
+        TryAssignSlot();
+    }
+
+    private VehicleSlot FindNearestFreeSlot(VehicleSlot[] slots)
+    {
+        VehicleSlot nearest = null;
+        float minDist = float.MaxValue;
+        foreach (var slot in slots)
+        {
+            // Игнорируем слот, если он занят игроком
+            if (player != null && Vector3.Distance(player.position, slot.transform.position) < 1.0f)
+                continue;
+
+            if (slot.IsOccupied && slot.Occupant != this) continue;
+
+            float dist = Vector3.Distance(transform.position, slot.transform.position);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                nearest = slot;
+            }
+        }
+        return nearest;
+    }
+
+    private void OnDestroy()
+    {
+        if (targetSlot != null)
+            targetSlot.Release();
     }
 }

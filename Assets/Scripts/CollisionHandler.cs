@@ -13,7 +13,6 @@ public class CollisionHandler : MonoBehaviour
         if (other.CompareTag("Coin"))
         {
             scoreManager.coins++;
-            Debug.Log("Coin Collected");
             Destroy(other.gameObject);
         }
     }

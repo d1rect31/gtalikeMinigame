@@ -8,19 +8,20 @@ public class ObstacleSpawner : MonoBehaviour
     public Transform player;
     public float spawnInterval = 5f;
     public float spawnIntervalCoin = 15f;
+    public float spawnIntervalEnemyCar = 10f;
     public float[] lanePositions = { -2f, 0f, 2f };
     public float spawnDistanceAhead = 20f;
     public float spawnDistanceBehind = 10f;
     private int lastObstacleLane = -1;
 
-    
-    
+
+
 
     void Start()
     {
         InvokeRepeating(nameof(SpawnObstacle), 1f, spawnInterval);
         InvokeRepeating(nameof(SpawnCoin), 1f, spawnIntervalCoin);
-        Invoke(nameof(SpawnEnemyCar), 2f);
+        InvokeRepeating(nameof(SpawnEnemyCar), 2f, spawnIntervalEnemyCar);
     }
 
     void SpawnEnemyCar()
@@ -28,7 +29,7 @@ public class ObstacleSpawner : MonoBehaviour
         if (player == null || enemyCarPrefab == null) return;
         // Случайная полоса
         int lane = Random.Range(0, lanePositions.Length);
-        Vector3 spawnPos = new Vector3(
+        Vector3 spawnPos = new(
             lanePositions[lane],
             player.position.y - spawnDistanceBehind,
             0
@@ -41,7 +42,7 @@ public class ObstacleSpawner : MonoBehaviour
         if (player == null) return;
         int lane = Random.Range(0, lanePositions.Length);
         lastObstacleLane = lane;
-        Vector3 spawnPos = new Vector3(lanePositions[lane], player.position.y + spawnDistanceAhead, 0);
+        Vector3 spawnPos = new(lanePositions[lane], player.position.y + spawnDistanceAhead, 0);
         Instantiate(obstaclePrefab, spawnPos, Quaternion.identity);
     }
 
