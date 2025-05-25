@@ -116,7 +116,13 @@ public class Guard2D : MonoBehaviour
         }
         return false;
     }
-
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            GameOver();
+        }
+    }
     void GameOver()
     {
         if (gameOverPanel != null && !gameOverPanel.activeSelf)
