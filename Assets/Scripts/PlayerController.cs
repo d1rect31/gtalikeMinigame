@@ -11,7 +11,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private VehicleSlot currentSlot;
     public float slotCaptureDistance = 0.5f; // Радиус захвата слота
     private Vector3 startPosition;
+    public GameObject bulletPrefab;
+    public float bulletSpeed = 10f;
+    public float shootInterval = 0.3f;
 
+    private float shootTimer;
     void Start()
     {
         startPosition = transform.position;
@@ -22,6 +26,7 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.GetComponent<EnemyCar>() != null)
         {
+            Debug.Log("Игрок столкнулся с машиной!");
             // Возврат на стартовую позицию
             transform.position = startPosition;
             targetPosition = startPosition;
@@ -34,6 +39,13 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        shootTimer += Time.deltaTime;
+        if (Input.GetMouseButton(0) && shootTimer >= shootInterval)
+        {
+            Shoot();
+            shootTimer = 0f;
+        }
+
         transform.Translate(speed * Time.deltaTime * Vector2.up);
 
         if ((Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A)) && currentLane > 0)
@@ -93,5 +105,33 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    
+    void Shoot()
+    {
+        // Получаем позицию курсора в мировых координатах
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mouseWorldPos.z = 0f;
+
+        // Вычисляем расстояние до точки клика
+        float distance = Vector2.Distance(transform.position, mouseWorldPos);
+
+        // Оффсет по Y для компенсации движения игрока вверх
+        float offsetY = speed * (distance / bulletSpeed);
+
+        // Добавляем оффсет к целевой позиции
+        Vector3 aimPos = new Vector3(mouseWorldPos.x, mouseWorldPos.y + offsetY, 0f);
+
+        Vector2 direction = (aimPos - transform.position).normalized;
+
+        GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+        Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.linearVelocity = direction * bulletSpeed;
+        }
+        HurtComponent hurt = bullet.GetComponent<HurtComponent>();
+        if (hurt != null)
+        {
+            hurt.owner = HurtComponent.OwnerType.Player;
+        }
+    }
 }

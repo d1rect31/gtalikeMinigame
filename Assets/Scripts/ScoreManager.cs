@@ -12,6 +12,7 @@ public class ScoreManager : MonoBehaviour
     public int scoreMultiplier = 1;
     public int coins = 0;
     public TMP_Text coinsText;
+    [SerializeField]private GameObject gameOverScreenPrefab;
     void Start()
     {
         if (player != null)
@@ -34,5 +35,10 @@ public class ScoreManager : MonoBehaviour
             scoreText.text = Convert.ToString(score);
         if (coinsText != null)
             coinsText.text = Convert.ToString(coins);
+    }
+    public void OnPlayerDied()
+    {
+        Debug.Log("Player died! Game Over.");
+        Instantiate((gameOverScreenPrefab), Vector3.zero, Quaternion.identity);
     }
 }

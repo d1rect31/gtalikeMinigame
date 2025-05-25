@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class BackgroundTiler : MonoBehaviour
 {
-    public GameObject tilePrefab;
+    public List<GameObject> tilePrefabs; // Список префабов тайлов
     public Transform player;
     public float tileLength = 10f;
     public int tilesAhead = 3;
@@ -21,7 +21,6 @@ public class BackgroundTiler : MonoBehaviour
         nextTileY = tiles.Last.Value.transform.position.y + tileLength;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (player.position.y + tilesAhead * tileLength > nextTileY - tileLength / 2)
@@ -38,8 +37,15 @@ public class BackgroundTiler : MonoBehaviour
 
     void SpawnTile(float yPos)
     {
+        if (tilePrefabs == null || tilePrefabs.Count == 0)
+        {
+            Debug.LogWarning("Список префабов тайлов пуст!");
+            return;
+        }
+        int randomIndex = Random.Range(0, tilePrefabs.Count);
+        GameObject prefab = tilePrefabs[randomIndex];
         Vector3 pos = new Vector3(0, yPos, 0);
-        GameObject tile = Instantiate(tilePrefab, pos, Quaternion.identity);
+        GameObject tile = Instantiate(prefab, pos, Quaternion.identity);
         tiles.AddLast(tile);
     }
 }

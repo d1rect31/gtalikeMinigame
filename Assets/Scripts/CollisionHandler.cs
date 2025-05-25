@@ -7,8 +7,15 @@ public class CollisionHandler : MonoBehaviour
     {
         if (other.CompareTag("Obstacle"))
         {
-            Debug.Log("Game Over");
-            Time.timeScale = 0;
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                Health playerHealth = player.GetComponent<Health>();
+                if (playerHealth != null)
+                {
+                    playerHealth.TakeDamage(1);
+                }
+            }
         }
         if (other.CompareTag("Coin"))
         {

@@ -10,6 +10,7 @@ public class EnemyCar : MonoBehaviour
     public float smoothTime = 0.2f;
     private Transform player;
     private static VehicleSlot[] cachedSlots;
+    public float leadOffset = 2.0f;
 
     void Start()
     {
@@ -31,6 +32,11 @@ public class EnemyCar : MonoBehaviour
         }
 
         Vector3 targetPos = targetSlot.transform.position;
+
+        // ƒобавл€ем опережение по Y (или по нужной оси)
+        if (player != null)
+            targetPos += Vector3.up * leadOffset;
+
         targetPos.z = transform.position.z;
 
         float distance = Vector3.Distance(transform.position, targetPos);

@@ -26,6 +26,8 @@ public class ObstacleSpawner : MonoBehaviour
 
     void SpawnEnemyCar()
     {
+        if (FindObjectsByType<EnemyCar>(FindObjectsSortMode.None).Length >= 7)
+            return; // Ограничение на количество машин
         if (player == null || enemyCarPrefab == null) return;
         // Случайная полоса
         int lane = Random.Range(0, lanePositions.Length);
