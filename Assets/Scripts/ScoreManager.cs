@@ -39,6 +39,6 @@ public class ScoreManager : MonoBehaviour
     public void OnPlayerDied()
     {
         Debug.Log("Player died! Game Over.");
-        Instantiate((gameOverScreenPrefab), Vector3.zero, Quaternion.identity);
+        Instantiate(gameOverScreenPrefab, transform.position, Quaternion.identity, transform);
     }
 }

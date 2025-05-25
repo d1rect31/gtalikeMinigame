@@ -23,6 +23,10 @@ public class BackgroundTiler : MonoBehaviour
 
     void Update()
     {
+        if (player == null)
+        {
+            return;
+        }
         if (player.position.y + tilesAhead * tileLength > nextTileY - tileLength / 2)
         {
             SpawnTile(nextTileY);

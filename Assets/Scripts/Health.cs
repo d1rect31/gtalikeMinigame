@@ -4,7 +4,6 @@ public class Health : MonoBehaviour
 {
     public int maxHealth = 3;
     public int currentHealth;
-    public GameObject gameOverScreen;
 
     void Start()
     {
@@ -28,10 +27,6 @@ public class Health : MonoBehaviour
             if (scoreManager != null)
             {
                 scoreManager.OnPlayerDied();
-            }
-            if (gameOverScreen != null)
-            {
-                Instantiate(gameOverScreen, Vector3.zero, Quaternion.identity);
             }
         }
 
